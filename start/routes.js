@@ -28,6 +28,7 @@ Route.post('/api/auth/login', 'AuthenticationController.login').middleware('logi
 Route.patch('/api/auth/password/update', 'AuthenticationController.updatePassword').middleware('updatePasswordValidator').middleware('authenticator')
 Route.patch('api/auth/password/new', 'AuthenticationController.setNewPassword').middleware('newPasswordValidator')
 Route.post('api/auth/password/forgot', 'AuthenticationController.forgotPassword').middleware('emailValidator')
+Route.get('api/auth/verification/resend', 'AuthenticationController.resendEmailVerification')
 
 /** PostController */
 

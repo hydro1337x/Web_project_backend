@@ -24,8 +24,9 @@ class AuthenticationController {
     const emailKey = Env.get('EMAIL_KEY')
     const verificationToken = JWT.sign({"id": user.id}, emailKey, { expiresIn: 15 * 60 }) // JWT Token expires after 15 minutes
     const verificationURL = Env.get('VERIFICATION_URL')
+    const resendURL = Env.get('RESEND_VERIFICATION_URL')
 
-    await Mail.send('emails/verification', {url: verificationURL + verificationToken}, (message) => {
+    await Mail.send('emails/verification', {verificationUrl: verificationURL + verificationToken, resendUrl: resendURL + user.email}, (message) => {
       message
         .from('web-prog-test@ferit.com')
         .to(user.email)
@@ -172,6 +173,34 @@ class AuthenticationController {
     response.ok(new ResponseData(true, 'Password reset email successfully sent', null, null))
   }
 
+  async resendEmailVerification({ request, response }) {
+
+    const email = request.get().email
+
+    if (!email) {
+      return response.badRequest(new ResponseData(false, 'Invalid email', null, error))
+    }
+
+    try {
+      var user = await User.findByOrFail('email', email)
+    } catch (error) {
+      return response.badRequest(new ResponseData(false, 'Email not registered', null, error))
+    }
+
+    const emailKey = Env.get('EMAIL_KEY')
+    const verificationToken = JWT.sign({"id": user.id}, emailKey, { expiresIn: 15 * 60 }) // JWT Token expires after 15 minutes
+    const verificationURL = Env.get('VERIFICATION_URL')
+    const resendURL = Env.get('RESEND_VERIFICATION_URL')
+
+    await Mail.send('emails/verification', {verificationUrl: verificationURL + verificationToken, resendUrl: resendURL + user.email}, (message) => {
+      message
+        .from('web-prog-test@ferit.com')
+        .to(user.email)
+        .subject('Verify email')
+    })
+
+    return response.ok(new ResponseData(true, 'Verification email successfully sent', null, null))
+  }
 
 }
 
