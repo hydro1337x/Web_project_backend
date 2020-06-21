@@ -76,7 +76,7 @@ class AuthenticationController {
     const passwordValid = await Hash.verify(loginInput.password, user.password)
 
     if (!passwordValid) {
-      return response.badRequest(false, 'Invalid password', null, null)
+      return response.badRequest(new ResponseData(false, 'Invalid password', null, null))
     }
 
     const privateKey = Env.get('APP_KEY')
@@ -84,7 +84,7 @@ class AuthenticationController {
     const accessToken = JWT.sign({ "id": user.id }, privateKey, { expiresIn: 24 * 60 * 60})
 
 
-    const data = { accessToken }
+    const data = { accessToken: accessToken, firstName: user.firstName, lastName: user.lastName, email: user.email }
 
     response.ok(new ResponseData(true, 'Successfully logged in', data, null))
   }
@@ -114,11 +114,10 @@ class AuthenticationController {
 
   }
 
-  async setNewPassword({passwords, request, response}) {
+  async setNewPassword({newPassword, request, response}) {
 
-    const accessToken = request.get().token
+    const {accessToken} = request.post()
     const privateKey = Env.get('APP_KEY')
-    const { oldPassword, newPassword } = passwords
 
     try {
       var payload = JWT.verify(accessToken, privateKey)
@@ -130,12 +129,6 @@ class AuthenticationController {
       var user = await User.findOrFail(payload.id)
     } catch (e) {
       return response.badRequest(new ResponseData(false, 'User not found', null, e))
-    }
-
-    const passwordsMatch = await Hash.verify(oldPassword, user.password)
-
-    if (!passwordsMatch) {
-      return response.badRequest(new ResponseData(false, 'Invalid old password', null, null))
     }
 
     const newHashedPassword = await Hash.make(newPassword, privateKey)
