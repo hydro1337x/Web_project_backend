@@ -73,7 +73,7 @@ class PostController {
       return response.badRequest(new ResponseData(false, 'User not found', null, error))
     }
 
-    let { id } = request.post()
+    const { id } = request.post()
 
     try {
       var result = await Post.query()
@@ -81,7 +81,7 @@ class PostController {
         .where('id', id)
         .delete()
     } catch (error) {
-      return response.badRequest(new ResponseData(false, 'Query failed', null, null))
+      return response.badRequest(new ResponseData(false, 'Query failed', null, error))
     }
 
     if (!result) {
@@ -91,6 +91,29 @@ class PostController {
 
     return response.ok(new ResponseData(true, 'Post deleted successfully', null, null))
   }
+
+  async get({ request, response }) {
+
+    const id = request.get().id
+
+    if (!id) {
+      try {
+        let posts = await Post.query().fetch()
+        return response.ok(new ResponseData(true, 'Successfully fetched posts', posts, null))
+      } catch (error) {
+        return response.badRequest(new ResponseData(false, 'Could not fetch posts', null, error))
+      }
+    }
+
+    try {
+      var post = await Post.findOrFail(id)
+      return response.ok(new ResponseData(true, 'Successfully fetched post', post, null))
+    } catch (error) {
+      return response.badRequest(new ResponseData(false, 'Could not fetch post', null, error))
+    }
+
+  }
+
 }
 
 module.exports = PostController

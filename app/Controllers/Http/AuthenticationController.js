@@ -84,7 +84,7 @@ class AuthenticationController {
     const accessToken = JWT.sign({ "id": user.id }, privateKey, { expiresIn: 24 * 60 * 60})
 
 
-    const data = { accessToken: accessToken, firstName: user.firstName, lastName: user.lastName, email: user.email }
+    const data = { accessToken: accessToken}
 
     response.ok(new ResponseData(true, 'Successfully logged in', data, null))
   }
@@ -193,6 +193,37 @@ class AuthenticationController {
     })
 
     return response.ok(new ResponseData(true, 'Verification email successfully sent', null, null))
+  }
+
+  async getUser({ request, payload, response }) {
+    try {
+      var user = await User.findOrFail(payload.id)
+    } catch (error) {
+      return response.badRequest(new ResponseData(false, 'User not found', null, error))
+    }
+
+    const data = {user: {id: user.id, email: user.email, firstName: user.firstName, lastName: user.lastName}}
+    response.ok(new ResponseData(true, 'User successfully fetched', data, null))
+  }
+
+  async updateInfo({ request, payload, response }) {
+
+    try {
+      var user = await User.findOrFail(payload.id)
+    } catch (error) {
+      return response.badRequest(new ResponseData(false, 'User not found', null, error))
+    }
+
+    const { firstName, lastName } = request.post()
+
+    const result = await Database.table('users').where('id', user.id).update('firstName', firstName).update('lastName', lastName)
+
+    if (!result) {
+      return response.notModified(new ResponseData(false, 'Could not update user info', null, null))
+    }
+
+    response.ok(new ResponseData(true, 'Successfully updated user info', null, null))
+
   }
 
 }

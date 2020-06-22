@@ -25,14 +25,17 @@ Route.get('/api/', () => {
 Route.post('/api/auth/register', 'AuthenticationController.register').middleware('registrationValidator')
 Route.get('/api/auth/verification', 'AuthenticationController.verifyEmail')
 Route.post('/api/auth/login', 'AuthenticationController.login').middleware('loginValidator')
-Route.patch('/api/auth/password/update', 'AuthenticationController.updatePassword').middleware('updatePasswordValidator').middleware('authenticator')
 Route.patch('api/auth/password/new', 'AuthenticationController.setNewPassword').middleware('newPasswordValidator')
 Route.post('api/auth/password/forgot', 'AuthenticationController.forgotPassword').middleware('emailValidator')
 Route.get('api/auth/verification/resend', 'AuthenticationController.resendEmailVerification')
+Route.get('api/auth/user', 'AuthenticationController.getUser').middleware('authenticator')
+Route.patch('/api/auth/user/password/update', 'AuthenticationController.updatePassword').middleware('updatePasswordValidator').middleware('authenticator')
+Route.patch('/api/auth/user/info/update', 'AuthenticationController.updateInfo').middleware('authenticator')
 
 /** PostController */
 
 Route.post('/api/post/create', 'PostController.create').middleware('authenticator')
 Route.patch('/api/post/edit', 'PostController.edit').middleware('authenticator')
 Route.delete('/api/post/delete', 'PostController.delete').middleware('authenticator')
+Route.get('/api/post/get', 'PostController.get')
 

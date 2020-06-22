@@ -8,7 +8,7 @@ class Authenticator {
   async handle (ctx, next) {
 
     const { request, response } = ctx
-    const token = request.header('access-token')
+    const token = request.header('Authorization')
 
     if (!token) {
       response.unauthorized(new ResponseData(false, 'Access Denied', null, null))
