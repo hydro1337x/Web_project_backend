@@ -195,7 +195,7 @@ class AuthenticationController {
     return response.ok(new ResponseData(true, 'Verification email successfully sent', null, null))
   }
 
-  async getUser({ request, payload, response }) {
+  async getUser({ payload, response }) {
     try {
       var user = await User.findOrFail(payload.id)
     } catch (error) {
